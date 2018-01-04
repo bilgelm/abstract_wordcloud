@@ -78,6 +78,6 @@ mywordcloud = wordcloud2(d, size=1.6, color='random-dark')
 saveWidget(mywordcloud, "mywordcloud.html", selfcontained = F)
 
 # a longer delay might be necessary to capture more words
-webshot("mywordcloud.html","mywordcloud.png", delay=60, vwidth=800, vheight=800)
+webshot("mywordcloud.html","mywordcloud.png", delay=60, vwidth=1000, vheight=1000)
 
 display_png(file="mywordcloud.png")
