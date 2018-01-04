@@ -1,4 +1,9 @@
 
+# install packages (if necessary)
+install.packages(c("RISmed","tm","SnowballC","wordcloud2","webshots","htmlwidgets","IRdisplay"),
+                 repos="https://cran.rstudio.com/")
+webshot::install_phantomjs()
+
 # pubmed search
 library(RISmed)
 
