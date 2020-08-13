@@ -1,0 +1,7 @@
+install.packages("RISmed")
+install.packages("tm")
+install.packages("SnowballC")
+install.packages("wordcloud2")
+install.packages("webshots")
+install.packages("htmlwidgets")
+install.packages("IRdisplay")
