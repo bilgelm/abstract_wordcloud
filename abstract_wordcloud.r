@@ -33,12 +33,12 @@ my_query <- "Murat Bilgel[AU]"
 search_query <- EUtilsSummary(my_query)
 records<- EUtilsGet(search_query)
 pubmed_data <- data.frame('Title'=ArticleTitle(records),'Abstract'=AbstractText(records))
-head(pubmed_data,1) # take a look at the first result
+head(pubmed_data, 2) # take a look at the first two results
 
 # get abstract body only
-docs <- Corpus(VectorSource(pubmed_data$Abstract))
+docs <- VCorpus(VectorSource(pubmed_data$Abstract))
 
-inspect(docs) # take a look at the results
+lapply(docs, inspect) # take a look at the results
 
 # get rid of unnecessary characters in text
 toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
@@ -53,7 +53,7 @@ docs <- tm_map(docs, removeNumbers)
 # Remove english common stopwords (is, are, was, at, some, ...)
 docs <- tm_map(docs, removeWords, stopwords("english"))
 # Remove additional words
-docs <- tm_map(docs, removeWords, c("abstract","objective","purpose","introduction","background",
+docs <- tm_map(docs, removeWords, c("abstract","abstracttext","objective","purpose","introduction","background",
                                     "method","methods","material","materials",
                                     "discussion","conclusion","conclusions",
                                     "reference","references","bibliography",
@@ -75,7 +75,7 @@ head(d, 20) # look at top 20 words
 # plot wordcloud
 # due to lack of htmlwidget support in jupyter notebook, we cannot display this directly here. 
 # We'll first save it as an interactive HTML, then export as png.
-mywordcloud = wordcloud2(d, size=1.6, color='random-dark')
+mywordcloud = wordcloud2(d, size=1.0, color='random-dark')
 
 saveWidget(mywordcloud, "mywordcloud.html", selfcontained = F)
 
