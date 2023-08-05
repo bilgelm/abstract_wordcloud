@@ -40,10 +40,7 @@ ui <- dashboardPage(
           width = NULL,
           textInput("query", "PubMed query",
             value = "Murat Bilgel[AU]"
-          ),
-          actionButton("generate", "Search PubMed",
-            class = "btn-block btn-info"
-          ),
+          )
         ),
         box(
           width = NULL,
@@ -75,7 +72,7 @@ ui <- dashboardPage(
               "star"
             )
           ),
-          actionButton("update", "Generate wordcloud",
+          actionButton("generate", "Generate wordcloud",
             class = "btn-block btn-info"
           )
         )
@@ -86,7 +83,7 @@ ui <- dashboardPage(
           width = NULL,
           use_waiter(),
           wordcloud2Output("wordcloud", width = "100%"),
-          downloadButton("download", "Download wordcloud")
+          uiOutput("downloadUI")
         )
       )
     )
@@ -95,7 +92,7 @@ ui <- dashboardPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  intermediate_docs <- eventReactive(input$generate, {
+  intermediate_docs <- reactive({
     id <- showNotification("Searching PubMed...",
       duration = NULL, closeButton = FALSE
     )
@@ -131,13 +128,11 @@ server <- function(input, output, session) {
     docs
   })
 
-  remove_words <- eventReactive(input$update, input$remove_words)
-
   counts_table <- reactive({
     # Remove additional words
     docs <- tm_map(
       intermediate_docs(), removeWords,
-      strsplit(remove_words(), ", ", fixed = TRUE)[[1]]
+      strsplit(input$remove_words, ", ", fixed = TRUE)[[1]]
     )
 
     # generate word frequency table
@@ -146,7 +141,7 @@ server <- function(input, output, session) {
     v <- sort(rowSums(m), decreasing = TRUE)
     d <- data.frame(Word = names(v), Count = v)
     d
-  })
+  }) %>% bindEvent(input$generate)
 
   wordcloud <- reactive({
     mywordcloud <- wordcloud2(counts_table(),
@@ -156,10 +151,16 @@ server <- function(input, output, session) {
     )
 
     mywordcloud
-  })
+  }) %>% bindEvent(input$generate)
 
-  output$counts_table <- renderTable(head(counts_table(), 10))
   output$wordcloud <- renderWordcloud2(wordcloud())
+
+  output$downloadUI <- renderUI({
+    if (is.null(wordcloud())) {
+      return()
+    }
+    downloadButton("download", "Download wordcloud")
+  })
   output$download <- downloadHandler(
     filename = "wordcloud.png",
     content = function(file) {
