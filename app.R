@@ -25,7 +25,6 @@ library(wordcloud2)
 library(htmlwidgets)
 library(webshot)
 
-# Define UI for application that draws a histogram
 ui <- dashboardPage(
   dashboardHeader(
     title = "Generate wordcloud from PubMed abstracts",
@@ -90,7 +89,6 @@ ui <- dashboardPage(
   )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output, session) {
   intermediate_docs <- reactive({
     id <- showNotification("Searching PubMed...",
