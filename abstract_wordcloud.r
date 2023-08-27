@@ -15,7 +15,7 @@ new_packages <- list_of_packages[
 
 if (length(new_packages)) install.packages(new_packages)
 
-webshot::install_phantomjs()
+if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
 
 # pubmed search
 library(RISmed)
@@ -37,7 +37,7 @@ library(htmlwidgets)
 # https://www.r-graph-gallery.com/196-the-wordcloud2-library/
 
 # PubMed query
-my_query <- "Murat Bilgel[AU]"
+my_query <- '"Murat Bilgel[AU]"'
 
 # get pubmed data
 search_query <- EUtilsSummary(my_query)
@@ -85,18 +85,25 @@ docs <- tm_map(docs, stripWhitespace)
 
 # generate word frequency table
 dtm <- TermDocumentMatrix(docs)
-m <- as.matrix(dtm)
-v <- sort(rowSums(m), decreasing = TRUE)
-d <- data.frame(word = names(v), freq = v)
-head(d, 20) # look at top 20 words
+if (dtm$nrow==0) {
+  d <- data.frame(Word = c("Noresult",
+                           "PubMedquerydidnotyieldresults"), Count = c(1, 0))
+} else {
+  m <- as.matrix(dtm)
+  v <- sort(rowSums(m), decreasing = TRUE)
+  d <- data.frame(word = names(v), freq = v)
+  head(d, 20) # look at top 20 words
+}
 
 # plot wordcloud
 mywordcloud <- wordcloud2(d, size = 1.0, color = "random-dark")
 mywordcloud
 
 # first save wordcloud as an interactive HTML, then export as png
-saveWidget(mywordcloud, "mywordcloud.html", selfcontained = FALSE)
+saveWidget(mywordcloud, "wordcloud.html", selfcontained = FALSE)
 
 # a longer delay might be necessary to capture more words
-webshot("mywordcloud.html", "mywordcloud.png", delay = 60,
-        vwidth = 1000, vheight = 1000)
+webshot("wordcloud.html", "wordcloud.png",
+  delay = 10,
+  vwidth = 2000, vheight = 2000
+)

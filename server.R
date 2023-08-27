@@ -15,6 +15,8 @@ library(wordcloud2)
 library(htmlwidgets)
 library(webshot)
 
+if (!webshot::is_phantomjs_installed()) webshot::install_phantomjs()
+
 function(input, output, session) {
   intermediate_docs <- reactive({
     id <- showNotification("Searching PubMed...",
@@ -24,7 +26,13 @@ function(input, output, session) {
 
     # get pubmed data
     search_query <- EUtilsSummary(input$query)
+    # from RISmed::EUtilsGet documentation:
+    # In order not to overload the E-utility servers,
+    # NCBI recommends that users post no more than three URL requests per second
+    # to prevent HTTP 429 errors, here's a half second wait
+    Sys.sleep(0.5)
     records <- EUtilsGet(search_query)
+  
     pubmed_data <- data.frame(
       "Title" = ArticleTitle(records),
       "Abstract" = AbstractText(records)
@@ -61,17 +69,22 @@ function(input, output, session) {
 
     # generate word frequency table
     dtm <- TermDocumentMatrix(docs)
-    m <- as.matrix(dtm)
-    v <- sort(rowSums(m), decreasing = TRUE)
-    d <- data.frame(Word = names(v), Count = v)
+    if (dtm$nrow==0) {
+      d <- data.frame(Word = c("Noresult",
+                               "PubMedquerydidnotyieldresults"), Count = c(1, 0))
+    } else {
+      m <- as.matrix(dtm)
+      v <- sort(rowSums(m), decreasing = TRUE)
+      d <- data.frame(Word = names(v), Count = v)
+    }
     d
-  }) %>% bindEvent(input$generate)
+  })
 
   wordcloud <- reactive({
     mywordcloud <- wordcloud2(counts_table(),
       size = 1.0,
       color = "random-dark",
-      shape = input$shape,
+      shape = input$shape
     )
 
     mywordcloud
@@ -85,6 +98,7 @@ function(input, output, session) {
     }
     downloadButton("download", "Download wordcloud")
   })
+  
   output$download <- downloadHandler(
     filename = "wordcloud.png",
     content = function(file) {

@@ -9,8 +9,8 @@
 
 library(shiny)
 library(shinydashboard)
-
 library(waiter)
+library(wordcloud2)
 
 dashboardPage(
   dashboardHeader(
@@ -24,9 +24,15 @@ dashboardPage(
         width = 4,
         box(
           width = NULL,
+          p(
+            class = "text-muted",
+            tagList("Before using this tool, go to",
+                    a("PubMed", href="https://pubmed.ncbi.nlm.nih.gov"),
+                    "and verify that your query works as intended.")
+          ),
           textInput(
             "query", "PubMed query",
-            value = "Murat Bilgel[AU]"
+            value = '"Murat Bilgel[AU]"'
           )
         ),
         box(
@@ -34,7 +40,7 @@ dashboardPage(
           p(
             class = "text-muted",
             paste(
-              "Common English stopwords (is, are, was, at, some, ...) ",
+              "Common English stopwords (is, are, was, at, some, ...)",
               "will be removed from results."
             )
           ),
@@ -57,6 +63,13 @@ dashboardPage(
               "circle", "cardioid", "diamond",
               "triangle-forward", "triangle", "pentagon",
               "star"
+            )
+          ),
+          p(
+            class = "text-muted",
+            paste(
+              "You will not see the effect of Wordcloud shape in this app;",
+              "the shape choice will affect the downloadable png file only."
             )
           ),
           actionButton("generate", "Generate wordcloud",
