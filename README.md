@@ -5,4 +5,4 @@ make a wordcloud from abstracts' text
 
 Generate your wordcloud [here](https://bilgelm.shinyapps.io/abstract_wordcloud/)
 
-![Murat Bilgel's wordcloud](mywordcloud.png "Abstract wordcloud")
+![Murat Bilgel's wordcloud](wordcloud.png "Abstract wordcloud")
